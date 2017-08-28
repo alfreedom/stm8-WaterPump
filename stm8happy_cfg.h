@@ -2,52 +2,52 @@
 #define STM8HAPPY_CONFIG
 
 /**
- * Enable de GPIO hal driver.
+ * Enable the GPIO hal driver.
  */
 #define USE_GPIO 1
 
 /**
- * Enable de ADC1 hal driver.
+ * Enable the ADC1 hal driver.
  */
 #define USE_ADC1 0
 
 /**
- * Enable de BEEPER hal driver.
+ * Enable the BEEPER hal driver.
  */
 #define USE_BEEPER 1
 
 /**
- * Enable de I2C hal driver.
+ * Enable the I2C hal driver.
  */
 #define USE_I2C 0
 
 /**
- * Enable de TIM1 hal driver.
+ * Enable the TIM1 hal driver.
  */
 #define USE_TIM1 0
 
 /**
- * Enable de TIM2 hal driver.
+ * Enable the TIM2 hal driver.
  */
 #define USE_TIM2 1
 
 /**
- * Enable de CAN hal driver.
+ * Enable the CAN hal driver.
  */
 #define USE_CAN 0
 
 /**
- * Enable de ITC hal driver.
+ * Enable the ITC hal driver.
  */
 #define USE_ITC 1
 
 /**
- * Enable de SPI hal driver.
+ * Enable the SPI hal driver.
  */
 #define USE_SPI 0
 
 /**
- * Enable de UART1 hal driver.
+ * Enable the UART1 hal driver.
  */
 #define USE_UART1 0
 

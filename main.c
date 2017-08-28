@@ -252,54 +252,53 @@ void EXTI_PORTD_IRQ() {
     GPIODisableExtInt(BOTONES_GPIO, BOTONES_MASK);
 
     // Si se presiona el boton de inicio...
+	MuestraNumeroDisplays(user_minutes);
     if((butons_state & BOTON_START) == LOW) {
 
         // Espera a que se suelte el botón
         while((GPIORead(BOTONES_GPIO) & BOTON_START) == LOW)
-            MuestraNumeroDisplays(time_left);
-
+			MuestraNumeroDisplays(user_minutes);
+				
         // Si la temporización está iniciada, la detiene y muestra animación.
         if(is_running == TRUE) {
-            System_Stop();
-            System_EndAnimation(0x40, ANIMATION_DURATION_NORMAL);
+			System_Stop();
+			System_EndAnimation(0x40, ANIMATION_DURATION_NORMAL);
         }
-        else // Si la temporización está detenida, la inicia.
-            System_Start();
-        
-        // Retardo, para estabilizar las señales de los GPIO.
-        delay(0x3FFFF);
-
-
-    }
-    else // Si se presionó el boton - ...
-    if((butons_state & BOTON_MENOS) == LOW) {
-
-        // Espera a que se suelte el botón
-         while((GPIORead(BOTONES_GPIO) & BOTON_MENOS)== LOW)
-            MuestraNumeroDisplays(time_left);
-
-        // Si no está corriendo la temporización, decrementa el tiempo de temporización.
-        if(is_running == FALSE) {
-            user_minutes--;
-            if(user_minutes==0)
-                user_minutes = MAX_TIME_RUNNING;
-        }
-        else { // Si el sistema está corriendo, muestra animación de advertencia
-            System_EndAnimation(0x79, ANIMATION_DURATION_SHORT);
-        }
-    }
-    else // Si se presionó el boton + ...
-    if((butons_state & BOTON_MAS) == LOW) {
-
-        // Espera a que se suelte el botón
-         while((GPIORead(BOTONES_GPIO) & BOTON_MAS) == LOW)
-            MuestraNumeroDisplays(time_left);
-
+		else // Si la temporización está detenida, la inicia.
+		{
+			System_Start();
+			delay(0xffff);
+		}
+		
+	}
+	else // Si se presionó el boton - ...
+	if((butons_state & BOTON_MENOS) == LOW) {
+		
+		// Espera a que se suelte el botón
+		while((GPIORead(BOTONES_GPIO) & BOTON_MENOS)== LOW)
+			MuestraNumeroDisplays(user_minutes);
+			
+		// Si no está corriendo la temporización, decrementa el tiempo de temporización.
+		if(is_running == FALSE) {
+			user_minutes--;
+			if(user_minutes==0)
+				user_minutes = MAX_TIME_RUNNING;
+		}
+		else { // Si el sistema está corriendo, muestra animación de advertencia
+			System_EndAnimation(0x79, ANIMATION_DURATION_SHORT);
+		}
+	}
+	else // Si se presionó el boton + ...
+	if((butons_state & BOTON_MAS) == LOW) {
+		// Espera a que se suelte el botón
+		while((GPIORead(BOTONES_GPIO) & BOTON_MAS) == LOW)
+			MuestraNumeroDisplays(user_minutes);
+		
         // Si no está corriendo la temporizacipon, incrementa el tiempo de temporización.
         if(is_running == FALSE) {
             user_minutes++;
             if(user_minutes> MAX_TIME_RUNNING)
-                user_minutes = 0;
+                user_minutes = 1;
         }
         else {// Si el sistema está corriendo, muestra animación de advertencia
             System_EndAnimation(0x79, ANIMATION_DURATION_SHORT);
@@ -323,19 +322,14 @@ void main() {
         
         // Si la temporización esta corriendo ..
         if(is_running){
-            if(!(seconds%2)) {
+            if( !(seconds%2)) {
                 // Muestra el tiempo de temporización restante
                 MuestraNumeroDisplays(time_left);
-                // Enciende el led de la placa
-                GPIOWriteBit(LED_BOARD_GPIO, LED_BOARD, LOW);
             }
             else{
                 // Apaga los displays
                 GPIOWriteBit(DISPLAY_1_EN_GPIO, DISPLAY_1_EN, LOW);
                 GPIOWriteBit(DISPLAY_2_EN_GPIO, DISPLAY_2_EN, LOW);
-                // Apaga el led de la placa
-                GPIOWriteBit(LED_BOARD_GPIO, LED_BOARD, HIGH);
-
             }
         }
         else { // Si la temporización no está corriendo, muestra el tiempo
@@ -367,16 +361,22 @@ void System_Init() {
 }
 
 void System_Start() {
+	
+	time_left = user_minutes;
+	// Enciende el LED
+	GPIOWriteBit(LED_BOARD_GPIO, LED_BOARD, LOW);
+	// Enciende la bomba
+	Enciende_Bomba();
+	// Inicia el timer.
+	// Reinicia contadores
+	TIM2_CNTRH = 0;
+	TIM2_CNTRL = 0;
+	seconds = 0;
+	minutes = 0;
 
-    time_left = user_minutes;
-    is_running = TRUE;
-    // Enciende el LED
-    GPIOWriteBit(LED_BOARD_GPIO, LED_BOARD, LOW);
-    // Enciende la bomba
-    Enciende_Bomba();
-    // Inicia el timer.
-    TIM2Start();
-}
+	TIM2Start();
+	is_running = TRUE;
+	}
 
 void System_Stop() {
 
@@ -386,11 +386,6 @@ void System_Stop() {
     TIM2Stop();
     // Apaga el led
     GPIOWriteBit(LED_BOARD_GPIO, LED_BOARD, HIGH);
-    // Reinicia contadores
-    TIM2_CNTRH = 0;
-    TIM2_CNTRL = 0;
-    seconds = 0;
-    minutes = 0;
     is_running = FALSE;
 }
 
